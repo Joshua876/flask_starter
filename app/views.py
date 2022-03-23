@@ -5,8 +5,12 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
-from app import app
-from flask import render_template, request, redirect, url_for
+import os
+from app import app,db
+from flask import render_template, request, redirect, url_for, flash, send_from_directory 
+from app.models import propertyDetails
+from app.forms import propertyForm
+from werkzeug.utils import secure_filename
 
 
 ###
@@ -22,9 +26,44 @@ def home():
 @app.route('/about/')
 def about():
     """Render the website's about page."""
-    return render_template('about.html', name="Mary Jane")
+    return render_template('about.html', name="Joshua McIntosh")
+
+@app.route('/properties/create', methods=["GET","POST"])
+def crt_property():
+    form = propertyForm()
+    if request.method=='POST' and form.validate_on_submit():
+        prop_title=request.form['prop_title']
+        prop_bedrooms=request.form['prop_bedrooms']
+        prop_bathrooms=request.form['prop_bathrooms']
+        prop_location=request.form['prop_location']
+        prop_price=request.form['prop_price']
+        prop_type=request.form['prop_type']
+        prop_descrip=request.form['prop_descrip']
+        prop_img=request.form['prop_img']
+        photo=secure_filename(prop_img.filename)
+        prop_img.save(os.path.join(app.config['UPLOAD_FOLDER'], prop_img))
+        propty=propertyDetails(prop_title,prop_bedrooms,prop_bathrooms,prop_location,prop_price,prop_type,prop_descrip,photo)
+        db.session.add(propty)
+        db.session.commit()
+        flash('Property added successfully', 'success')
+        return redirect(url_for('properties'))
+    return render_template('create.html', form=form)
+    
+
+@app.route('/properties')
+def disp_properties():
+    properties=propertyDetails.query.all()
+    return render_template('properties.html', properties=properties)
+
+@app.route('/properties/<propertyid>')
+def disp_property(propertyid):
+    indv_property=propertyDetails.query(propertyDetails).filter(propertyDetails.id == propertyid).first()
+    return render_template('property.html', indv_property=indv_property)
 
 
+@app.route('/img-upload/<filename>')
+def get_image(filename):
+    return send_from_directory(os.path.join(os.getcwd(),app.config[UPLOAD_FOLDER]), filename)
 ###
 # The functions below should be applicable to all Flask apps.
 ###

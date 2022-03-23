@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="propt">
+    <div class="proptimg">
+        <img src="{{url_for('get_image', filename=property.photo)}}">
+    </div>
+    <div class = "propinfo">
+        <h2>{{indv_property.prop_title}}</h2>
+        <div class="propprice">
+            <p class = "prptyprice">{{indv_property.prop_price}}</p>
+            <p class = "prptytype">{{indv_property.prop_type}}</p>
+        </div>
+        <p class="propdecrip">{{indv_property.prop_descrip}}</p>
+        <div class="b_room">
+            <p>{{indv_property.prop_bedrooms}} Bedrooms</p>
+            <p>{{indv_property.prop_bathrooms}} Bathrooms</p>
+        </div>
+        <div>
+            <p>{{indv_property.prop_location}}</p>
+        </div>
+        <div>
+            <button class ="btn">Email Realtor</button>
+        </div>
+    </div>
+
+</div>
+
+{%endblock%}
